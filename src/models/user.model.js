@@ -1,27 +1,49 @@
-const { Sequelize, Model, DataTypes } = require("sequelize");
+const { DataTypes } =  require("sequelize");
 const sequelize = require("../db/db");
-const { defaultValueSchemable } = require("sequelize/lib/utils");
 
 const User = sequelize.define(
-    "user",
+    "User",
     {
         id:{
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
             primaryKey: true
         },
-        name:{
+        first_name:{
             type: DataTypes.STRING(100),
             allowNull: false,
             validate:{
                 notNull: {msg:"El nombre es obligatorio"}
             }
         },
-        telefono:{
+        last_name:{
             type: DataTypes.STRING(100),
             allowNull: false,
             validate:{
-                notNull: {msg:"El telfono es obligatorio"}
+                notNull: {msg:"El Apellido es obligatorio"}
+            }
+        },
+        telephone:{
+            type: DataTypes.STRING(100),
+            allowNull: false,
+            validate:{
+                notNull: {msg:"El telefono es obligatorio"}
+            }
+        },
+        email:{
+            type: DataTypes.STRING(100),
+            allowNull: false,
+            unique: true,
+            validate:{
+                isMail: true,
+                notNull: {msg:"El correo electronico es obligatorio"}
+            }
+        },
+        rol_id: {
+            type: DataTypes.UUID,
+            allowNull: false,
+            validate:{
+                notNull: {msg:"El rol es obligatorio"}
             }
         }
     },

@@ -1,95 +1,98 @@
 const User = require("../models/user.model");
-const response = require("../res/response");
+const response = require("../rest/response");
 
-const getAll = async(req, res, next)=>{
+const getAll = async (req, res, next) => {
     try {
         const users = await User.findAll();
-        let data;
-        if(users.length>0){
-            data= {
-                users: users,
-                total_users: users.length
+        let data = "";
+
+        if (users.length > 0) {
+            data = {
+                total_registros: users.length,
+                registros: users
             }
-        }else{
-            data={
-                message: "Esta tabla no tiene registros"
+        } else {
+            data = {
+                message: "no hay registros en la tabla"
             }
         }
-        response.success(req,res,data,200);
+        response.success(req, res, data, 200);
     } catch (error) {
         next(error);
     }
-}
+};
 
-const create = async(req,res,next)=>{
+const getOne = async (req, res, next) => {
+    try {
+        const id = req.params.id;
+        const user = await User.findOne({ where: { id } });
+        let data = "";
+
+        if (user) {
+            data = { registro: user };
+        } else {
+            data = { message: "no hay registro con ese id" };
+        }
+        response.success(req, res, data, 200);
+    } catch (error) {
+        next(error);
+    }
+};
+
+const create = async (req, res, next) => {
     try {
         const data = req.body;
         await User.sync();
-        const userCreated = await User.create(data);
-        message = {
-            id: userCreated.id,
-            msg: "el usuario fue creado con exito"
+        const createdUser = await User.create(data);
+        let message;
+
+        if (createdUser.id) {
+            message = {
+                msg: "registro efectuado exitosamente",
+                regId: createdUser.id
+            }
+        } else {
+            message = { msg: "error, usuario no creado" };
         }
-        response.success(req,res,message,200);
+        response.success(req, res, message, 201);
     } catch (error) {
         next(error);
     }
-}
+};
 
-const getById = async(req,res,next)=>{
+const update = async (req, res, next) => {
     try {
-        const id = req.params.id;
-        const user = await User.findOne({where:{id}});
-        let data;
-        if(user){
-            data= {
-                user: user,
-            }
-        }else{
-            data={
-                message: "Esta tabla no tiene registros por ese ID"
-            }
-        }
-        response.success(req,res,data,200);
-    } catch (error) {
-        next(error);
-    }
-}
-
-const update = async(req,res,next)=>{
-    try {
-        const id = req.params.id;
         const data = req.body;
-        await User.sync();
-        const userUpdated = await User.update(data,{where:{id}});
-        console.log(userUpdated);
-        message = {
-            id: id,
-            msg: "el usuario fue actualizado con exito"
+        const id = req.params.id;
+        await User.update(data, { where: { id } });
+        const message = {
+            msg: "registro actualizado exitosamente",
+            regId: id
         }
-        response.success(req,res,message,200);
+        response.success(req, res, message, 200);
     } catch (error) {
         next(error);
     }
-}
+};
 
-const deleted = async(req,res,next)=>{
+const deleted = async (req, res, next) => {
     try {
         const id = req.params.id;
-        const userDeleted = await User.destroy({where:{id}});
-        message = {
-            id: id,
-            msg: "el usuario con este id fue eliminado"
+        await User.destroy({ where: { id } });
+        const message = {
+            msg: "Registro eliminado exitosamente",
+            regId: id
         }
-        response.success(req,res,message,200);
+        response.success(req, res, message, 200);
     } catch (error) {
-        next(error)
+        next(error);
     }
 };
 
 module.exports = {
     getAll,
     getById,
+    getOne,
     create,
     update,
     deleted
